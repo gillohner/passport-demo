@@ -7,4 +7,4 @@ at https://gillohner.github.io/passport-demo/.
 - `source/passport.ts` is the demo's integration code, with a numbered overview of each step.
 - `package-readme.md` is the package README.
 
-The site signs in against `https://passport.pubky.app`.
+The site signs in against the preview Passport at `https://3000--main--passport-demo--gil.coder.riginode.xyz`.
