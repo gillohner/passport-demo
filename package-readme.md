@@ -32,15 +32,15 @@ It has no runtime dependencies of its own; the app supplies two peers: `@synonym
 </script>
 ```
 
-| Attribute      | Default                      | Meaning                                                              |
-| -------------- | ---------------------------- | -------------------------------------------------------------------- |
-| `instance`     | `https://passport.pubky.app` | The Passport people sign in with (people can pick their own)         |
-| `app-name`     | the page's host name         | Shown in Passport                                                    |
-| `client-id`    | the page's host name         | A stable ID for the app, part of the request                         |
-| `capabilities` | `""` (identity only)         | e.g. `/pub/example.app/:rw`; a whole `/pub/` or `/priv/` is refused  |
-| `profile`      | `required`                   | `optional` signs in people without a pubky.app profile               |
-| `variant`      | `small`                      | `large` adds the Pubky Ring QR code and link                         |
-| `messages`     | English                      | JSON of replacement texts, e.g. `{"label.idle": "Weiter mit Pubky"}` |
+| Attribute      | Default                      | Meaning                                                                    |
+| -------------- | ---------------------------- | -------------------------------------------------------------------------- |
+| `instance`     | `https://passport.pubky.app` | The Passport people sign in with (people can pick their own)               |
+| `app-name`     | the page's host name         | Shown in Passport                                                          |
+| `client-id`    | the page's host name         | A stable ID for the app, part of the request                               |
+| `capabilities` | `""` (identity only)         | e.g. `/pub/example.app/:rw`; `/`, `/pub`, `/pub/` and `/priv…` are refused |
+| `profile`      | `required`                   | `optional` signs in people without a pubky.app profile                     |
+| `variant`      | `small`                      | `large` adds the Pubky Ring QR code and link                               |
+| `messages`     | English                      | JSON of replacement texts, e.g. `{"label.idle": "Weiter mit Pubky"}`       |
 
 `messages` is also a property that takes the same object (and replaces the attribute). Every
 attribute is optional. Changing a configuration attribute starts over with the new settings.
@@ -111,7 +111,7 @@ blocked and this tab is going to Passport. Called while a sign-in is under way, 
 forward; while a required profile is missing, it opens Passport's profile page. `view.signedIn` holds
 the same `{ session, publicKey, profile }` from the moment a Session arrives until `reset()`, however
 the sign-in finished (pop-up, Pubky Ring or a same-tab return), so a subscriber sees every
-sign-in. `reset()` also cancels a sign-in in progress. Options are the attributes' camel-case names
+sign-in; a new `signIn()` starts over and clears it. `reset()` also cancels a sign-in in progress. Options are the attributes' camel-case names
 (`instance`, `appName`, `clientId`, `capabilities`, `profile`, `messages`); a bad value or any other key throws an error
 named `PassportConfigError` whose `issues` name the options.
 
@@ -125,7 +125,15 @@ return to that page, so a returning page must create it with the options the pag
 - `publicKey` (show `pubky` + the key so people see who they are) and `profile`: the pubky.app
   profile read once after the sign-in and validated by `pubky-app-specs` (`name`, and optionally
   `bio`, `image` as a `pubky://` URL, `links`, `status`). With `profile: "required"` it is always
-  there; with `"optional"` it is `null` when the person has none or it could not be read.
+  there; with `"optional"` it is `null` when the person has none or it could not be read. Treat
+  `profile.image` (a `pubky://` URL) and `profile.links[].url` as untrusted input: the specs accept
+  any address, so render them as text or through your own allow-list. After a Pubky Ring sign-in
+  that went through Passport's window, the profile is created inside that window too: the package
+  holds the Session, asks the bound Passport (`profile-needed`), rereads the profile once Passport
+  says it is published (`profile-ready`; a few quick retries cover a lagging homeserver) and then
+  delivers the Session with the profile. If the person closed Passport meanwhile, the button reads
+  "Finish your profile" and reopens Passport on that key's profile setup. A Ring scan of the large
+  style's own QR never passes through Passport; the button then reads "Finish your profile" too.
 - To survive a reload, save the Session with the SDK's session store
   (`new Pubky().browserSessionStore.save(session)`) and `restore(id)` it on start-up.
 - To sign out: `await session.signout()`, then `reset()` on the element or client.
@@ -272,8 +280,9 @@ Pubky state may call the SDK's `clearAll()` themselves at sign-out.
 
 Entry sizes include static relative imports and the full closure of dynamically imported modules;
 peers (the SDK and `pubky-app-specs`) are not counted. Every import target is checked for existence
-and import policy. DESIGN's ceilings are 12 KB core and 22 KB element; the build currently allows a
-provisional 32 KB and 40 KB (measured about 29.5 KB and 38.2 KB gzip) until the maintainer decides.
+and import policy. The planned ceilings were 12 KiB core and 22 KiB element; the build currently
+allows a provisional 32 KiB and 42 KiB (measured about 30.1 KiB and 41.2 KiB gzip) until the
+maintainer decides.
 
 ## Development
 
