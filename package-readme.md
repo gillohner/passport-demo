@@ -122,7 +122,7 @@ function of those three. The keys are `label.*` (the button), `status.*` (the po
 
 | Key                | Default                            | Where                                     |
 | ------------------ | ---------------------------------- | ----------------------------------------- |
-| `ring.divider`     | or                                 | Between the button and the QR code        |
+| `ring.divider`     | or log in with Pubky Ring          | Between the button and the QR code        |
 | `ring.preparing`   | Preparing QR code…                 | While the Ring request is prepared        |
 | `ring.qr-label`    | QR code to sign in with Pubky Ring | The code's accessible name                |
 | `ring.copy`        | Copy authentication link           | Accessible name of the code's copy action |
