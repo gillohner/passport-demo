@@ -53,8 +53,8 @@ button,input{font:inherit}
 .divider{display:flex;align-items:center;gap:10px;font-size:13px;color:#89898f}
 .divider::before,.divider::after{content:"";flex:1;border-top:1px solid var(--p-line)}
 .qr{position:relative;display:block;align-self:center;width:var(--passport-qr-size,232px);max-width:100%;padding:8px;border-radius:8px;background:#fff;overflow:hidden}
-.qr{transition:filter .15s}.qr .code{display:block}
-.qr:active{filter:brightness(.92)}
+.qr .code{display:block;transition:opacity .15s}
+.qr:active .code{opacity:.8}
 .qr[data-state=expired] .code{filter:blur(3px)}
 .qr .press{position:absolute;inset:0;width:100%;height:100%;padding:0;border:0;border-radius:8px;background:transparent;cursor:pointer}
 .qr .press:focus-visible{outline:2px solid var(--p-brand);outline-offset:-2px}
