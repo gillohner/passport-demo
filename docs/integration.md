@@ -8,7 +8,8 @@ it asked for, the person's public key and their pubky.app profile.
 > Only an SDK `Session` authenticates the user. Passport's messages, callbacks and pop-up outcomes
 > describe what happened in the UI; they are not credentials.
 
-The package is not published to npm yet. Until it is, build it from this repository
+Version 0.1.0 is ready to publish but not on npm yet. Once it is, install it with
+`npm install @pubky/passport-client`; until then, build it from this repository
 (`pnpm --filter @pubky/passport-client build`) and depend on it as a workspace package, as
 [the demo](../examples/passport-demo) does. If you cannot use the package, the raw protocol is
 documented under [Advanced: custom integrations](#advanced-custom-integrations).
@@ -266,13 +267,14 @@ three seconds it navigates the pop-up to your matching callback, which should fo
 its opener and close. Without callbacks or a hello, Passport shows its own result screen.
 
 `success` means Passport posted the approval to the relay, or, after a Pubky Ring hand-off, that
-Ring's answer is on your relay channel or the person pressed **I approved in Pubky Ring**. While
+Ring's answer is on your relay channel; nobody reports a Ring approval by hand. While
 its Ring screen is in view, Passport reads only the relay's acknowledgement for your channel
 (`GET <relay>/<channel>/ack` on an [http-relay](https://github.com/pubky/http-relay) inbox, every
 3 seconds, paused while the page is hidden); that read never takes or changes the message. In a
 pop-up whose opener is open, Passport moves on only after your SDK took the answer; in the same
-tab it moves on once the answer waits, and navigates to `x-success`. Either way, keep polling the
-SDK: none of these messages authenticates the user.
+tab it moves on once the answer waits, and navigates to `x-success`; with no callback and no
+opener to answer, it goes on to its own home. Either way, keep polling the SDK: none of these
+messages authenticates the user.
 
 ### Opener protocol v2
 
@@ -298,8 +300,9 @@ identities or local storage and carries no request URL, capabilities or relay se
   not know.
 - **Outcomes.** With a bound opener, terminal outcomes use version 2 and go to that origin even
   without callbacks; Passport closes after a matching acknowledgement and otherwise falls back to
-  the callback or its own screen. A Pubky Ring hand-off sends no v2 outcome: Passport ends the
-  request as `completed` and leaves the window for you to close when your `Session` arrives.
+  the callback or its own screen. A Pubky Ring hand-off sends no v2 outcome: the window stays on
+  its Ring screen for you to close when your `Session` arrives, and once Passport sees Ring's
+  answer taken on your relay channel it ends the request as `completed` and shows its own home.
 - **Completed.** `ready` with `request.status: "completed"` means only that the request ended in
   Passport. Outside the Ring phase, end that attempt and offer a retry; in the Ring phase keep
   polling the SDK and give a closed pop-up a grace period (the package uses 90 seconds).
